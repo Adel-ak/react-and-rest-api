@@ -12,7 +12,6 @@ class Courses extends Component{
         const { context } = this.props;
         await context.data.getCourses(`/courses`)
             .then(res => {
-            console.log(`Output => : Courses -> componentDidMount -> res`, res);
                 if(res.length > 0){
                     this.setState({
                         courses: res

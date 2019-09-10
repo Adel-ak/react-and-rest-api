@@ -8,7 +8,7 @@ export default ({ component: Component, ...rest }) => {
       {context => (
         <Route
           {...rest}
-          render={props => context.authenticatedUser ? (
+          render={props => context.authenticatedUser !== null ? (
               <Component {...props} />
             ) : (
               <Redirect to={{

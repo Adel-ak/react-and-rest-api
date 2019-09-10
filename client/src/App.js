@@ -6,37 +6,40 @@ import {
 } from 'react-router-dom';
 import Header from './components/Header';
 import Courses from './components/Courses';
-import NewCourse from './components/NewCourse';
+import NewCourse from './components/CreateCourse';
 import UpdateCourse from './components/UpdateCourse';
-import UsersCourse from './components/UsersCourse';
-import SignUp from './components/SignUp';
-import SignIn from './components/SignIn';
+import CourseDetail from './components/CourseDetail';
+import UserSignUp from './components/UserSignUp';
+import UserSignIn from './components/UserSignIn';
+import UserSignOut from './components/UserSignOut';
 import withContext from './Context';
+import PrivateRoute from './PrivateRoute';
 
-const HeaderWithContext = withContext(Header)
-const CoursesWithContext = withContext(Courses)
-const NewCourseWithContext = withContext(NewCourse)
-const UpdateCourseWithContext = withContext(UpdateCourse)
-const UsersCourseWithContext = withContext(UsersCourse)
-const SignUpWithContext = withContext(SignUp)
-const SignInWithContext = withContext(SignIn)
+const HeaderWithContext = withContext(Header);
+const CoursesWithContext = withContext(Courses);
+const NewCourseWithContext = withContext(NewCourse);
+const UpdateCourseWithContext = withContext(UpdateCourse);
+const UsersCourseWithContext = withContext(CourseDetail);
+const SignUpWithContext = withContext(UserSignUp);
+const SignInWithContext = withContext(UserSignIn);
+const SignOutWithContext = withContext(UserSignOut);
 
 
 function App() {
   return (
     <Router>
-    <div>
+    <React.Fragment>
       <HeaderWithContext />
-
       <Switch>
       <Route exact path="/" component={CoursesWithContext} />
-      <Route path="/courses/create" component={NewCourseWithContext} />
-      <Route path="/courses/:id/update" component={UpdateCourseWithContext} />
+      <PrivateRoute path="/courses/create" component={NewCourseWithContext} />
+      <PrivateRoute path="/courses/:id/update" component={UpdateCourseWithContext} />
       <Route path="/courses/:id" component={UsersCourseWithContext} />
       <Route path="/signup" component={SignUpWithContext} />
       <Route path="/signin" component={SignInWithContext} />
+      <Route path="/signOut" component={SignOutWithContext} />
       </Switch>
-    </div>
+    </React.Fragment>
   </Router>
   );
 }

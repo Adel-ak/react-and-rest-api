@@ -1,43 +1,50 @@
 import React,{ PureComponent } from 'react';
 import { Link } from 'react-router-dom';
 
-class UsersCourse extends PureComponent {
+class CourseDetail extends PureComponent {
     state = {
         id:"",
         title: "",
         description: "",
         materialsNeeded: "",
         estimatedTime: "",
-        user: {
-            firstName: "",
-            lastName:""
-        },
+        user: {},
+        boolean: null
     }
 
-    async componentDidMount(){
+    UNSAFE_componentWillMount = async () => {
         const { match: { params } } = this.props;
         const { context } = this.props;
         await context.data.getCourses(`/courses/${params.id}`)
-            .then(res => {
-                const {
-                    id,
-                    title,
-                    description,
-                    User,
-                    materialsNeeded,
-                    estimatedTime
-                } = res;    
-                this.setState({
-                    id,
-                    title,
-                    description,
-                    materialsNeeded,
-                    estimatedTime,
-                    user: User
-                });
+        .then(async res  => {
+            const {
+                id,
+                title,
+                description,
+                User,
+                materialsNeeded,
+                estimatedTime
+            } = res;    
+            await this.setState({
+                id,
+                title,
+                description,
+                materialsNeeded,
+                estimatedTime,
+                user: User,
+                boolean: this.props.context.authenticatedUser === null || this.props.context.authenticatedUser.id !== User.id
             });
-            
-        }
+
+        });
+    }
+    // courses/:id
+    delete = async (path) => {
+        const { context } = this.props;
+        const { emailAddress,password } = context.authenticatedUser;
+        const decryptedPass = context.cryptr.decrypt(password);
+        await context.data.deleteCourses(path,emailAddress, decryptedPass)
+        .then(res => this.props.history.puch('/'));
+    }
 
     render(){
         const {
@@ -47,15 +54,39 @@ class UsersCourse extends PureComponent {
             user,
             // eslint-disable-next-line
             materialsNeeded,
-            estimatedTime 
-        } = this.state;  
-        
+            estimatedTime,
+        } = this.state;
+
+        console.log(this.state.boolean);
+       
         return(
             <div>
             <div className="actions--bar">
             <div className="bounds">
-                <div className="grid-100"><span><Link className="button" to={`/courses/${id}/update`} >Update Course</Link><a className="button" href="/">Delete Course</a></span><a
-                    className="button button-secondary" href="/">Return to List</a></div>
+                <div className="grid-100">
+                {(!this.state.boolean)?
+                    <span>
+                    <Link 
+                    className="button" 
+                    to={`/courses/${id}/update`} >
+                    Update Course
+                    </Link>
+                    <Link 
+                    className="button" 
+                    to="#" 
+                    onClick={() => this.delete(`/courses/${id}`)}>
+                    Delete Course
+                    </Link>
+                </span>:<span></span>
+                
+                }
+                
+                <Link
+                className="button button-secondary" 
+                to="/">
+                Return to List
+                </Link>
+                </div>
             </div>
             </div>
             <div className="bounds course--detail">
@@ -100,4 +131,4 @@ class UsersCourse extends PureComponent {
     }
 }
 
-export default UsersCourse
+export default CourseDetail

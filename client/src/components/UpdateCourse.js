@@ -2,9 +2,30 @@ import React, { Component } from 'react';
 
 class UpdateCourse extends Component{
 
+    state = {
+        courses: null
+    }
+
     cancel = (event) => {
         event.preventDefault(); 
         window.location.href='/';
+    }
+
+    async componentDidMount(){
+        const { context } = this.props;
+        const { id } = this.props.match.params;
+        await context.data.getCourses(`/courses/${id}`)
+            .then(res => {
+                console.log(res);
+                if(res !== null){
+                    this.setState({
+                        courses: res
+                    })
+                }
+            }).catch(err => {
+                console.log(err)
+
+            })
     }
 
     render(){

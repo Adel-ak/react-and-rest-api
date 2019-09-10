@@ -39,17 +39,15 @@ class SignUp extends Component{
             if (errors.length) {
               throw errors;
             } 
-            // else {
-            //     // if(password !== confirmPassword){
-            //     //     errors = ['Passwords Does Not Match']
-            //     //     throw errors;
-            //     // }else{
-            //     //     // context.actions.signIn(emailAddress, password)
-            //     //     //     .then(() => {});
-            //     // }
-            // }
+            else {
+            
+            context.actions.signIn(emailAddress, password)
+                .then(() => this.props.history.push('/'));
+                
+            }
           })
           .catch(err => {
+          console.log(`Output => : SignUp -> submit -> err`, err);
             this.setState({
               errorsDisplay: () => (
                 <div>
@@ -62,7 +60,6 @@ class SignUp extends Component{
                 </div>
                 ),
                 errLength : err.length
-
             });
           }); 
     }
@@ -70,7 +67,6 @@ class SignUp extends Component{
     change = (event) => {
         const name = event.target.name;
         const value = event.target.value;
-
         this.setState(() => {
             return {
             [name]: value
@@ -80,8 +76,7 @@ class SignUp extends Component{
 
     cancel = (event) => {
         event.preventDefault(); 
-        window.location.href='/';
-    }
+        this.props.history.push('/')    }
 
     render(){
 

@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import Cookies from 'js-cookie';
 import Data from './Data';
+import Cryptr from 'cryptr';
+
 
 const Context = React.createContext(); 
-
 export class Provider extends Component {
 
   state = {
@@ -13,6 +14,7 @@ export class Provider extends Component {
   constructor() {
     super();
     this.data = new Data();
+    this.cryptr = new Cryptr('Secretpass')
   }
 
   render() {
@@ -20,9 +22,11 @@ export class Provider extends Component {
     const value = {
       authenticatedUser,
       data: this.data,
+      cryptr: this.cryptr,
       actions: {
         signIn: this.signIn,
-        signOut: this.signOut
+        signOut: this.signOut,
+
       },
     };
     return (
@@ -33,26 +37,21 @@ export class Provider extends Component {
   }
 
   
-  signIn = async (username, password) => {
-    const user = await this.data.getUser(username, password);
+  signIn = async (emailAddress, password) => {
+    const user = await this.data.getUser(emailAddress, password);
+
+    const encryptedPassword = this.cryptr.encrypt(password);
     if (!user.isNull) {
-      this.setState(() => {
-        return {
-          authenticatedUser: user,
-        };
-      });
-      const cookieOptions = {
-        expires: 1 // 1 day
-      };
-      Cookies.set('authenticatedUser', JSON.stringify(user), {cookieOptions});
+      this.setState({ authenticatedUser: user });
+      this.state.authenticatedUser.password = encryptedPassword;
+      Cookies.set('authenticatedUser', JSON.stringify(user), {expires: 1});
     }
     return user;
   }
 
-  // signOut = () => {
-  //   this.setState({ authenticatedUser: null });
-  //   Cookies.remove('authenticatedUser');
-  // }
+  signOut = () => {
+    this.setState({ authenticatedUser: null });
+  }
 }
 
 export const Consumer = Context.Consumer;

@@ -24,7 +24,7 @@ class SignIn extends Component{
       submit = (e) => {
         e.preventDefault();
         const { context } = this.props;
-        const { from } = this.props.location.state || { from: { pathname: '/authenticated' } };
+        const { from } = this.props.location.state || { from: { pathname: '/' } };
         const { emailAddress, password } = this.state;
     
         context.actions.signIn(emailAddress, password)
@@ -34,7 +34,7 @@ class SignIn extends Component{
               throw user.errors
             } 
             else {
-              // this.props.history.push(from);
+              this.props.history.push(from);
             }
           }).catch(err => {
           console.log(err);
@@ -56,7 +56,7 @@ class SignIn extends Component{
 
     cancel = (event) => {
         event.preventDefault(); 
-        window.location.href='/';
+        this.props.history.push('/')
     }
 
     render(){

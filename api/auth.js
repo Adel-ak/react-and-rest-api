@@ -8,6 +8,7 @@ const { User } = require('./models');
         let message = null;
 
         const credentials = auth(req);
+        console.log(credentials);
         
         if (credentials) {
             

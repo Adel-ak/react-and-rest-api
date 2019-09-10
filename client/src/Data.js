@@ -24,47 +24,80 @@ export default class Data {
 
   async getUser(username, password) {
     const response = await this.api(`/users`, 'GET', null, true, { username, password });
+    const res = await response.json();
     if (response.status === 200) {
-      return response.json().then(data => data);
+      return res;
     }
     else if (response.status === 401) {
       return{
         isNull: true,
         errors: [ 'Sign-in was unsuccessful' ]
       };
-      
     }
     else {
-      throw new Error();
+      if(res.hasOwnProperty('message'))throw res;
+      else throw new Error();
     }
+  }
+
+  async createUser(user) {
+    const response = await this.api('/users', 'POST', user);
+    if (response.status === 201) {
+      return [];
+    }
+    else if (response.status === 400) {
+      const res = await response.json()
+      return res.message;
+    }
+    else {
+      throw new Error()
+    };
   }
 
   async getCourses(path) {
     const response = await this.api(path, 'GET');
+    const res = await response.json()
     if (response.status === 200) {
-      return response.json().then(data => data);
+      return res;
     }
     else if (response.status === 401) {
       return null;
     }
     else {
-      throw new Error();
+      if(res.hasOwnProperty('message'))throw res;
+      else throw new Error();
     }
   }
-  
-  async createUser(user) {
-    const response = await this.api('/users', 'POST', user)
+
+  async createCourses(path,courses,username, password) {
+    const response = await this.api(path, 'POST',courses, true, { username, password });       
     if (response.status === 201) {
       return [];
     }
     else if (response.status === 400) {
-      return response.json().then(data => {
-        return data.message;
-      });
+      const res = await response.json()
+      return res.message;
     }
     else {
-      throw new Error();
-    }
+      throw new Error()
+    };
   }
+
+  async deleteCourses(path, username, password) {
+    const response = await this.api(path, 'DELETE', null, true, { username, password });       
+    console.log(response);
+    if (response.status === 204) {
+      return [];
+    }
+    else if (response.status === 400) {
+      const res = await response.json()
+      return res.message;
+    }
+    else {
+      throw new Error()
+    };
+  }
+  
+  
 }
 
