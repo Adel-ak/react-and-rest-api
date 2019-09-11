@@ -13,16 +13,17 @@ class Courses extends Component{
         await context.data.getCourses(`/courses`)
             .then(res => {
                 if(res.length > 0){
-                    this.setState({
-                        courses: res
-                    })
+                    this.setState({courses: res});
                 }
-            
+            }).catch(err => {
+                console.log(err);
             });
     }
 
     render() {
-        const { courses }=this.state
+        
+        const { courses }=this.state;
+
         const values = 
         (courses !== null)?
         courses.map(val => (
@@ -35,6 +36,7 @@ class Courses extends Component{
         ))
         :
         false;
+
         return(
             <div className="bounds">
                 { values }

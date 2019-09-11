@@ -1,4 +1,4 @@
-import React,{ PureComponent } from 'react';
+import React,{ PureComponent,Fragment } from 'react';
 import { Link } from 'react-router-dom';
 
 class CourseDetail extends PureComponent {
@@ -12,7 +12,7 @@ class CourseDetail extends PureComponent {
         boolean: null
     }
 
-    UNSAFE_componentWillMount = async () => {
+    componentDidMount = async () => {
         const { match: { params } } = this.props;
         const { context } = this.props;
         await context.data.getCourses(`/courses/${params.id}`)
@@ -37,7 +37,6 @@ class CourseDetail extends PureComponent {
 
         });
     }
-    // courses/:id
     delete = async (path) => {
         const { context } = this.props;
         const { emailAddress,password } = context.authenticatedUser;
@@ -56,9 +55,7 @@ class CourseDetail extends PureComponent {
             materialsNeeded,
             estimatedTime,
         } = this.state;
-
-        console.log(this.state.boolean);
-       
+             
         return(
             <div>
             <div className="actions--bar">
@@ -104,23 +101,35 @@ class CourseDetail extends PureComponent {
                 <div className="course--stats">
                 <ul className="course--stats--list">
                     <li className="course--stats--list--item">
-                    <h4>Estimated Time</h4>
-                    <h3>{estimatedTime}</h3>
+                    {
+                        (estimatedTime)?
+                        <Fragment>
+                        <h4>Estimated Time</h4>
+                        <h3>{estimatedTime}</h3>
+                        </Fragment>
+                        :false
+                    }
                     </li>
                     <li className="course--stats--list--item">
-                    <h4>Materials Needed</h4>
-                    <ul>
-                        <li>1/2 x 3/4 inch parting strip</li>
-                        <li>1 x 2 common pine</li>
-                        <li>1 x 4 common pine</li>
-                        <li>1 x 10 common pine</li>
-                        <li>1/4 inch thick lauan plywood</li>
-                        <li>Finishing Nails</li>
-                        <li>Sandpaper</li>
-                        <li>Wood Glue</li>
-                        <li>Wood Filler</li>
-                        <li>Minwax Oil Based Polyurethane</li>
-                    </ul>
+                    {
+                        (materialsNeeded)?
+                        <Fragment>
+                        <h4>Materials Needed</h4>
+                        <ul>
+                            <li>1/2 x 3/4 inch parting strip</li>
+                            <li>1 x 2 common pine</li>
+                            <li>1 x 4 common pine</li>
+                            <li>1 x 10 common pine</li>
+                            <li>1/4 inch thick lauan plywood</li>
+                            <li>Finishing Nails</li>
+                            <li>Sandpaper</li>
+                            <li>Wood Glue</li>
+                            <li>Wood Filler</li>
+                            <li>Minwax Oil Based Polyurethane</li>
+                        </ul>
+                        </Fragment>
+                        :false
+                    }
                     </li>
                 </ul>
                 </div>

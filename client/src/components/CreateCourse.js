@@ -8,8 +8,7 @@ class NewCourse extends Component{
       estimatedTime:'',
       materialsNeeded:'',
       user : this.props.context.authenticatedUser,
-      errorsDisplay: null,
-      errLength:0,
+      errorMessages: null,
   }
 
   submit = (e) => {
@@ -35,46 +34,21 @@ class NewCourse extends Component{
     const decryptedString = context.cryptr.decrypt(password);
 
     context.data.createCourses('/courses',data,emailAddress,decryptedString)
-    .then(errors => {
-        if (errors.length) {
-          throw errors;
-        }else{
-          this.props.history.push('/');
-        }
+    .then(res => {
+      this.props.history.push('/');  
     })
-    .catch(err => {
-    console.log(`WHY!!!!!!!!!!!!!!!`, err);
-      
-      this.setState({
-      errorsDisplay: () => (
-        <div>
-        <h2 className="validation--errors--label">Validation errors</h2>
-        <div className="validation-errors">
-            <ul>
-            {err.map((error, i) => <li key={i}>{error}</li>)}
-            </ul>
-        </div>
-        </div>
-        ),
-        errLength : err.length
-    });
+    .catch(err => { 
+      if(err.message){
+        this.setState({errorMessages:err.message});
+      }
     })
   }
 
-  cancel = (e) => {
-    e.preventDefault(); 
-    window.location.href='/';
-  }
 
   change = (e) => {
     const name = e.target.name;
     const value = e.target.value;
-
-    this.setState(() => {
-      return {
-          [name]: value
-      };
-    });
+    this.setState({[name]: value});
   }
 
 
@@ -89,15 +63,17 @@ class NewCourse extends Component{
       description,
       estimatedTime,
       materialsNeeded,
-      user
+      user,
+      errorMessages
     } = this.state;
 
+  const { errDisplay,cancel } = this.props.context.actions
       return(
         <div className="bounds course--detail">
           <h1>Create Course</h1>
           {
-            (this.state.errLength > 0)
-            ?this.state.errorsDisplay()
+            (errorMessages !== null)
+            ?errDisplay(errorMessages)
             :false
           }
           <div>
@@ -174,7 +150,7 @@ class NewCourse extends Component{
                 <button
                 style={style}
                 className="button button-secondary" 
-                onClick={e => this.cancel(e)}>
+                onClick={e => cancel(e)}>
                 Cancel
                 </button>
               </div>

@@ -18,6 +18,7 @@ export class Provider extends Component {
   }
 
   render() {
+    
     const { authenticatedUser } = this.state;
     const value = {
       authenticatedUser,
@@ -26,9 +27,11 @@ export class Provider extends Component {
       actions: {
         signIn: this.signIn,
         signOut: this.signOut,
-
+        errDisplay: this.errorsDisplay,
+        cancel:this.cancel
       },
     };
+
     return (
       <Context.Provider value={value}>
         {this.props.children}
@@ -52,6 +55,23 @@ export class Provider extends Component {
   signOut = () => {
     this.setState({ authenticatedUser: null });
   }
+
+  errorsDisplay = (err,addClass) => (
+    <div>
+      <h2 className={`validation--errors--label ${addClass}`}>Validation errors</h2>
+      <div className="validation-errors">
+          <ul>
+          {err.map((error, i) => <li key={i}>{error}</li>)}
+          </ul>
+      </div>
+    </div>
+  )
+
+  cancel = (e) => {
+    e.preventDefault(); 
+    window.location.href = '/';
+  }
+  
 }
 
 export const Consumer = Context.Consumer;

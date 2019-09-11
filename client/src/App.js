@@ -2,8 +2,10 @@ import React from 'react';
 import {
   BrowserRouter as Router,
   Route,
-  Switch
+  Switch,
+  Redirect
 } from 'react-router-dom';
+
 import Header from './components/Header';
 import Courses from './components/Courses';
 import NewCourse from './components/CreateCourse';
@@ -13,7 +15,6 @@ import UserSignUp from './components/UserSignUp';
 import UserSignIn from './components/UserSignIn';
 import UserSignOut from './components/UserSignOut';
 import withContext from './Context';
-import PrivateRoute from './PrivateRoute';
 
 const HeaderWithContext = withContext(Header);
 const CoursesWithContext = withContext(Courses);
@@ -23,6 +24,23 @@ const UsersCourseWithContext = withContext(CourseDetail);
 const SignUpWithContext = withContext(UserSignUp);
 const SignInWithContext = withContext(UserSignIn);
 const SignOutWithContext = withContext(UserSignOut);
+
+const PrivateRoute = withContext(({context,component: Component, ...rest }) => {
+  return (
+    <Route
+      {...rest}
+      render={(props) => context.authenticatedUser !== null ? (
+          <Component {...props} />
+        ) : (
+          <Redirect to={{
+            pathname: '/signin',
+            state: { from: props.location }
+          }} />
+        )
+      }
+    />
+  );
+})
 
 
 function App() {

@@ -9,8 +9,8 @@ class SignUp extends Component{
         emailAddress:'',
         password:'',
         confirmPassword:'',
-        errorsDisplay: null,
-        errLength: 0,
+        errorMessages: null,
+
     }
 
     submit = (e) => {
@@ -25,7 +25,6 @@ class SignUp extends Component{
             confirmPassword,
         } = this.state;
     
-        // Create user
         const user = {
             firstName,
             lastName,
@@ -35,33 +34,14 @@ class SignUp extends Component{
         };
     
         context.data.createUser(user)
-          .then( errors => {
-            if (errors.length) {
-              throw errors;
-            } 
-            else {
-            
+        .then(res => {
             context.actions.signIn(emailAddress, password)
                 .then(() => this.props.history.push('/'));
-                
+        }).catch(err => {
+            if(err.message){
+            this.setState({errorMessages:err.message});
             }
-          })
-          .catch(err => {
-          console.log(`Output => : SignUp -> submit -> err`, err);
-            this.setState({
-              errorsDisplay: () => (
-                <div>
-                <h2 className="validation--errors--label">Validation errors</h2>
-                <div className="validation-errors">
-                    <ul>
-                    {err.map((error, i) => <li key={i}>{error}</li>)}
-                    </ul>
-                </div>
-                </div>
-                ),
-                errLength : err.length
-            });
-          }); 
+        }); 
     }
 
     change = (event) => {
@@ -73,10 +53,6 @@ class SignUp extends Component{
             };
         });
     }
-
-    cancel = (event) => {
-        event.preventDefault(); 
-        this.props.history.push('/')    }
 
     render(){
 
@@ -90,15 +66,19 @@ class SignUp extends Component{
             emailAddress,
             password,
             confirmPassword,
+            errorMessages
         } = this.state;
+
+        const { errDisplay,cancel } = this.props.context.actions
+
 
         return(
             <div className="bounds">
                 <div className="grid-33 centered signin">
                 <h1>Sign Up</h1>
                 {
-                    (this.state.errLength > 0)
-                    ?this.state.errorsDisplay()
+                    (errorMessages)?
+                    errDisplay(errorMessages)
                     :false
                 }
                 <div>
@@ -168,7 +148,7 @@ class SignUp extends Component{
                             <button 
                             style={style} 
                             className="button button-secondary" 
-                            onClick={(e) => this.cancel(e)}>
+                            onClick={e => cancel(e)}>
                             Cancel
                             </button>
                         </div>

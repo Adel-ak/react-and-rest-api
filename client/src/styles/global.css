@@ -583,7 +583,7 @@ p {
 /* line 460, ../sass/global.sass */
 .signin,
 .signup {
-  margin-top: 60px;
+  margin-top: 5px;
 }
 
 /* line 468, ../sass/global.sass */
@@ -748,6 +748,19 @@ input:focus {
   padding: 15px 0 40px 10px;
 }
 
+.validation-errors li {
+  text-align: center;
+  background-color: antiquewhite;
+  margin: 10px 0;
+  padding: 2px 0;
+  border: 1px #7c689b solid;
+  border-radius: 10px;
+  width: 35%;
+}
+.signup li,.signin li {
+  
+  width: 100%;
+}
 /* reduce bottom margin on the course description textarea element */
 .course--description textarea {
   margin-bottom: 20px;

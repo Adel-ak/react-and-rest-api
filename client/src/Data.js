@@ -29,7 +29,7 @@ export default class Data {
       return res;
     }
     else if (response.status === 401) {
-      return{
+      return {
         isNull: true,
         errors: [ 'Sign-in was unsuccessful' ]
       };
@@ -47,7 +47,7 @@ export default class Data {
     }
     else if (response.status === 400) {
       const res = await response.json()
-      return res.message;
+      throw res;
     }
     else {
       throw new Error()
@@ -76,7 +76,7 @@ export default class Data {
     }
     else if (response.status === 400) {
       const res = await response.json()
-      return res.message;
+      throw res;
     }
     else {
       throw new Error()
@@ -85,17 +85,42 @@ export default class Data {
 
   async deleteCourses(path, username, password) {
     const response = await this.api(path, 'DELETE', null, true, { username, password });       
-    console.log(response);
     if (response.status === 204) {
       return [];
     }
     else if (response.status === 400) {
-      const res = await response.json()
+      const res = await response.json();
       return res.message;
     }
     else {
       throw new Error()
     };
+  }
+
+  async updateCourse(path, body, username, password){
+    const response = await this.api(path, 'PUT', body, true, { username, password });
+    const checkStatus =  response.status === 400 
+                || response.status === 404 
+                || response.status === 403;
+    if(checkStatus){
+      const res = await response.json();
+      return res;
+    }else if(response.status === 204){
+      return []
+    }else{
+      throw new Error()
+    }
+    
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   }
   
   

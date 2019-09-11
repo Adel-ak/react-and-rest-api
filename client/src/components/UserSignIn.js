@@ -3,60 +3,43 @@ import { Link } from 'react-router-dom';
 
 class SignIn extends Component{
 
-    state = {
-        emailAddress: '',
-        password: '',
-        errorsDisplay: null,
-        errLength: 0,
-      }
+  state = {
+      emailAddress: '',
+      password: '',
+      errorMessages: null,
+  }
 
-    change = (event) => {
-        const name = event.target.name;
-        const value = event.target.value;
-    
-        this.setState(() => {
-          return {
-            [name]: value
-          };
-        });
-      }
-    
-      submit = (e) => {
-        e.preventDefault();
-        const { context } = this.props;
-        const { from } = this.props.location.state || { from: { pathname: '/' } };
-        const { emailAddress, password } = this.state;
-    
-        context.actions.signIn(emailAddress, password)
-          .then((user) => {
-            if (user.isNull) {
-              
-              throw user.errors
-            } 
-            else {
-              this.props.history.push(from);
-            }
-          }).catch(err => {
-          console.log(err);
-            this.setState({
-              errorsDisplay: () => (
-                <div>
-                <div className="validation-errors">
-                    <ul>
-                    {err.map((error, i) => <li key={i}>{error}</li>)}
-                    </ul>
-                </div>
-                </div>
-                ),
-                errLength : err.length
-
-            });
-          }); 
-      }
-
-    cancel = (event) => {
-        event.preventDefault(); 
-        this.props.history.push('/')
+  change = (event) => {
+      const name = event.target.name;
+      const value = event.target.value;
+  
+      this.setState(() => {
+        return {
+          [name]: value
+        };
+      });
+    }
+  
+    submit = (e) => {
+      e.preventDefault();
+      const { context } = this.props;
+      const { from } = this.props.location.state || { from: { pathname: '/' } };
+      const { emailAddress, password } = this.state;
+  
+      context.actions.signIn(emailAddress || 'ak@ak.com', password||'12')
+        .then(user => {
+          if (user.isNull) {
+            throw user
+          } 
+          else {
+            this.props.history.push(from);
+          }
+        }).catch(err => {
+          if(err.errors){
+            this.setState({errorMessages:err.errors});
+          }
+          
+        }); 
     }
 
     render(){
@@ -68,15 +51,18 @@ class SignIn extends Component{
         const {
             emailAddress,
             password,
+            errorMessages
           } = this.state;
+
+        const { errDisplay,cancel } = this.props.context.actions
 
         return(
             <div className="bounds">
                 <div className="grid-33 centered signin">
                     <h1>Sign In</h1>
                     {
-                      (this.state.errLength > 0)
-                      ?this.state.errorsDisplay()
+                      (errorMessages)?
+                      errDisplay(errorMessages)
                       :false
                     }
                     <div>
@@ -88,7 +74,7 @@ class SignIn extends Component{
                                 type="text" 
                                 className="" 
                                 placeholder="Email Address" 
-                                value={emailAddress}
+                                value={emailAddress||'ak@ak.com'}
                                 onChange={this.change} 
                                 />
                             </div>
@@ -99,7 +85,7 @@ class SignIn extends Component{
                                 type="password" 
                                 className="" 
                                 placeholder="Password" 
-                                value={password}
+                                value={password||"12"}
                                 onChange={this.change}
                                 autoComplete="off"
                                 />
@@ -114,7 +100,7 @@ class SignIn extends Component{
                                 <button 
                                 style={style} 
                                 className="button button-secondary" 
-                                onClick={e => this.cancel(e)}>
+                                onClick={e => cancel(e)}>
                                 Cancel
                                 </button>
                             </div>
