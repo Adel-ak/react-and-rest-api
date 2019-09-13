@@ -1,6 +1,13 @@
 import config from './config';
 
 export default class Data {
+
+  serverError = {
+    status: 500,
+    title:'Error',
+    message:'Sorry! We just encountered an unexpected error.'
+  }
+
   api(path, method = 'GET', body = null, requiresAuth = false, credentials = null) {
     const url = config.apiBaseUrl + path;
   
@@ -33,7 +40,7 @@ export default class Data {
         errors: [res.errors[1]]
       };
     }else if (response.status === 500) {
-      throw res
+      throw this.serverError;
     }else {
       if(res.hasOwnProperty('message'))throw res;
       else throw new Error();
@@ -44,14 +51,12 @@ export default class Data {
     const response = await this.api('/users', 'POST', user);
     if (response.status === 201) {
       return [];
-    }
-    else if (response.status === 400) {
+    }else if (response.status === 400) {
       const res = await response.json()
       throw res;
     }else if (response.status === 500) {
-      throw response.json()
-    }
-    else {
+      throw this.serverError;
+    }else {
       throw new Error()
     };
   }
@@ -61,11 +66,11 @@ export default class Data {
     const res = await response.json()
     if (response.status === 200) {
       return res;
-    }
-    else if (response.status === 401) {
+    }else if (response.status === 401) {
       return null;
-    }
-    else {
+    }else if (response.status === 500) {
+      throw this.serverError;
+    }else {
       if(res.hasOwnProperty('message'))throw res;
       else throw new Error();
     }
@@ -75,12 +80,13 @@ export default class Data {
     const response = await this.api(path, 'POST',courses, true, { username, password });       
     if (response.status === 201) {
       return [];
-    }
-    else if (response.status === 400) {
+    
+    }else if (response.status === 400) {
       const res = await response.json()
       throw res;
-    }
-    else {
+    }else if (response.status === 500) {
+      throw this.serverError;
+    }else {
       throw new Error()
     };
   }
@@ -89,13 +95,11 @@ export default class Data {
     const response = await this.api(path, 'DELETE', null, true, { username, password });       
     if (response.status === 204) {
       return [];
-    }
-    else if (response.status === 400) {
+    }else if (response.status === 400) {
       const res = await response.json();
       return res.message;
-    }
-    else {
-      throw new Error()
+    }else {
+      throw new Error();
     };
   }
 
@@ -109,6 +113,8 @@ export default class Data {
       return res;
     }else if(response.status === 204){
       return []
+    }else if (response.status === 500) {
+      throw this.serverError;
     }else{
       throw new Error()
     }

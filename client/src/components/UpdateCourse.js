@@ -21,7 +21,7 @@ class UpdateCourse extends Component{
         this.setState({[name]:value})
     }
 
-    componentDidMount = async () => {
+    componentWillMount = async () => {
 
         const { data, authenticatedUser } = this.props.context;
         const { params } = this.props.match;
@@ -95,10 +95,19 @@ class UpdateCourse extends Component{
 
         try{
             const res = await context.data.updateCourse(`/courses/${this.state.id}`, body, emailAddress, decryptedString);
+            console.log(`Output => : submit -> res`, res);
             if(res.message) throw res;
             else history.push('/')
         }catch(err){
-            if(err.message) this.setState({errorMessages: err.message}) 
+            if(err.status === 500){
+                this.setState({
+                    redirect:true,
+                    redirectPath: '/error',
+                    redirectMessages: err
+                });
+            }else{
+                this.setState({errorMessages: err.message})
+            } 
         }
     }
 
@@ -123,7 +132,7 @@ class UpdateCourse extends Component{
         if(redirect){
             return(
                 <Redirect to={{
-                    pathname: '/error',
+                    pathname: '/forbidden',
                     state: this.state.redirectMessages
                 }} />
             );

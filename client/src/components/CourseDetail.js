@@ -12,6 +12,7 @@ class CourseDetail extends PureComponent {
         user: {},
         boolean: null,
         redirect: false,
+        redirectPath: null,
         redirectMessages: null,
     }
 
@@ -39,12 +40,21 @@ class CourseDetail extends PureComponent {
                         || this.props.context.authenticatedUser.id !== User.id
             });
         }catch(err){
-            if(!err.title)err.title = "Not Found"         
-            this.setState({
-                redirect:true,
-                redirectMessages: err
-            });
-            console.error(err);
+            if(!err.title){
+                err.title = "Not Found";
+                this.setState({
+                    redirect:true,
+                    redirectPath: '/notfound',
+                    redirectMessages: err
+                });
+            } else if(err.status === 500){
+                this.setState({
+                    redirect:true,
+                    redirectPath: '/error',
+                    redirectMessages: err
+                });
+            }  
+            console.log(err);
         }
         
     }
@@ -67,13 +77,14 @@ class CourseDetail extends PureComponent {
             materialsNeeded,
             estimatedTime,
             redirect,
+            redirectPath,
             redirectMessages
         } = this.state;
 
         if(redirect){
             return(
                 <Redirect to={{
-                    pathname: '/error',
+                    pathname: redirectPath,
                     state: redirectMessages
                 }} />
             );
@@ -86,18 +97,19 @@ class CourseDetail extends PureComponent {
                 <div className="grid-100">
                 {(!this.state.boolean)?
                     <span>
-                    <Link 
-                    className="button" 
-                    to={`/courses/${this.props.match.params.id}/update`} >
-                    Update Course
-                    </Link>
-                    <Link 
-                    className="button" 
-                    to="#" 
-                    onClick={() => this.delete(`/courses/${id}`)}>
-                    Delete Course
-                    </Link>
-                </span>:<span></span>
+                        <Link 
+                        className="button" 
+                        to={`/courses/${this.props.match.params.id}/update`} >
+                        Update Course
+                        </Link>
+                        <Link 
+                        className="button" 
+                        to="#" 
+                        onClick={() => this.delete(`/courses/${id}`)}>
+                        Delete Course
+                        </Link>
+                    </span>
+                    :false
                 
                 }
                 

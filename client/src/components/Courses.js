@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
-
+import { Redirect } from 'react-router-dom';
 
 
 class Courses extends Component{
 
     state = {
         courses: null,
+        redirect: false,
+        redirectMessages: null,
     }
 
     async componentDidMount(){
@@ -16,13 +18,18 @@ class Courses extends Component{
                     this.setState({courses: res});
                 }
             }).catch(err => {
+                this.setState({
+                    redirect: true,
+                    redirectMessages: err,
+                });
+                
                 console.log(err);
             });
     }
 
     render() {
         
-        const { courses }=this.state;
+        const { courses, redirect }=this.state;
 
         const values = 
         (courses !== null)?
@@ -35,6 +42,13 @@ class Courses extends Component{
             </div>
         ))
         :false;
+
+        if(redirect){
+            return <Redirect to={{
+                pathname: '/error',
+                state: this.state.redirectMessages
+            }} />
+        }
 
         return(
             <div className="bounds">

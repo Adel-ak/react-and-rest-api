@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-
+import { Redirect } from 'react-router-dom';
 class NewCourse extends Component{
 
   state = {
@@ -9,11 +9,14 @@ class NewCourse extends Component{
       materialsNeeded:'',
       user : this.props.context.authenticatedUser,
       errorMessages: null,
+      redirect: false,
+      redirectPath: null,
+      redirectMessages: null,
   }
 
-  submit = (e) => {
+  submit = async (e) => {
     e.preventDefault();
-    const { context } = this.props;
+    const { authenticatedUser, cryptr, data } = this.props.context;
     const {
       title,
       description,
@@ -22,7 +25,7 @@ class NewCourse extends Component{
       user
     } = this.state;
 
-    const data = {
+    const newData = {
       title,
       description,
       estimatedTime,
@@ -30,18 +33,26 @@ class NewCourse extends Component{
       user
     }
 
-    const { emailAddress,password } = context.authenticatedUser;
-    const decryptedString = context.cryptr.decrypt(password);
-
-    context.data.createCourses('/courses',data,emailAddress,decryptedString)
-    .then(res => {
+    const { emailAddress,password } = authenticatedUser;
+    const decryptedString = cryptr.decrypt(password);
+    try{
+      await data.createCourses('/courses', newData, emailAddress ,decryptedString);
       this.props.history.push('/');  
-    })
-    .catch(err => { 
-      if(err.message){
+    
+    }catch(err){
+
+      if(err.status === 500){
+        this.setState({
+            redirect:true,
+            redirectPath: '/error',
+            redirectMessages: err
+        });
+      }  else if(err.message.length > 0){
         this.setState({ errorMessages:err.message });
       }
-    })
+      console.log(err);
+
+    }
   }
 
 
@@ -64,11 +75,20 @@ class NewCourse extends Component{
       estimatedTime,
       materialsNeeded,
       user,
-      errorMessages
+      errorMessages,
+      redirect,
+      redirectPath,
+      redirectMessages
     } = this.state;
 
   const { errDisplay,cancel } = this.props.context.actions;
   
+  if(redirect){
+    return <Redirect to={{
+        pathname: redirectPath,
+        state: redirectMessages
+    }} />
+}
       return(
         <div className="bounds course--detail">
           <h1>Create Course</h1>

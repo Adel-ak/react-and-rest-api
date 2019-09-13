@@ -3,12 +3,11 @@ import Cookies from 'js-cookie';
 import Data from './Data';
 import Cryptr from 'cryptr';
 
-
 const Context = React.createContext(); 
 export class Provider extends Component {
 
   state = {
-    authenticatedUser: Cookies.getJSON('authenticatedUser') || null
+    authenticatedUser: Cookies.getJSON('authenticatedUser') || null,
   };
 
   constructor() {
@@ -18,7 +17,6 @@ export class Provider extends Component {
   }
 
   render() {
-    
     const { authenticatedUser } = this.state;
     
     const value = {
@@ -31,6 +29,7 @@ export class Provider extends Component {
         errDisplay: this.errorsDisplay,
         cancel: this.cancel,
       },
+      
     };
 
     return (
@@ -72,6 +71,7 @@ export class Provider extends Component {
     e.preventDefault(); 
     window.location.href = '/';
   }
+
 }
 
 export const Consumer = Context.Consumer;
