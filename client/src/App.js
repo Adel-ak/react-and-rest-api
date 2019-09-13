@@ -60,7 +60,6 @@ function App() {
       <Route path="/signOut" component={SignOutWithContext} />
       <Route path="/forbidden" component={ErrorHandlerWithContext} />
       <Route component={ErrorHandlerWithContext} />
-      <Route component={ErrorHandlerWithContext} />
       </Switch>
     </React.Fragment>
   </Router>
