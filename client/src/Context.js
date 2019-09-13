@@ -20,6 +20,7 @@ export class Provider extends Component {
   render() {
     
     const { authenticatedUser } = this.state;
+    
     const value = {
       authenticatedUser,
       data: this.data,
@@ -28,7 +29,7 @@ export class Provider extends Component {
         signIn: this.signIn,
         signOut: this.signOut,
         errDisplay: this.errorsDisplay,
-        cancel:this.cancel
+        cancel: this.cancel,
       },
     };
 
@@ -40,7 +41,7 @@ export class Provider extends Component {
   }
 
   
-  signIn = async (emailAddress, password) => {
+  signIn = async ( emailAddress, password ) => {
     const user = await this.data.getUser(emailAddress, password);
 
     const encryptedPassword = this.cryptr.encrypt(password);
@@ -56,9 +57,9 @@ export class Provider extends Component {
     this.setState({ authenticatedUser: null });
   }
 
-  errorsDisplay = (err,addClass) => (
+  errorsDisplay = ( err ) => (
     <div>
-      <h2 className={`validation--errors--label ${addClass}`}>Validation errors</h2>
+      <h2 className="validation--errors--label">Validation errors</h2>
       <div className="validation-errors">
           <ul>
           {err.map((error, i) => <li key={i}>{error}</li>)}
@@ -67,11 +68,10 @@ export class Provider extends Component {
     </div>
   )
 
-  cancel = (e) => {
+  cancel = ( e ) => {
     e.preventDefault(); 
     window.location.href = '/';
   }
-  
 }
 
 export const Consumer = Context.Consumer;

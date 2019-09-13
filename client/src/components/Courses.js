@@ -34,8 +34,7 @@ class Courses extends Component{
                 </a>
             </div>
         ))
-        :
-        false;
+        :false;
 
         return(
             <div className="bounds">

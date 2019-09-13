@@ -33,13 +33,13 @@ const { User } = require('./models');
 
                 } else {
 
-                    message = `Authentication failure for username: ${user.emailAddress}`;
+                    message = [`Authentication failure for username: ${user.emailAddress}`,'Password Is Incorrect'];
                 
                 }
 
             } else {
 
-                message = `User not found for username: ${credentials.name}`;
+                message = [`User not found for username: ${credentials.name}`,'Email Is Incorrect'];
             
             }
 
@@ -52,7 +52,7 @@ const { User } = require('./models');
         if (message) {
 
             console.warn(message);
-            res.status(401).json({ message: 'Access Denied, you need to be logged in' });
+            res.status(401).json({ message: 'Access Denied, you need to be logged in', errors: message});
         
         } else {
 

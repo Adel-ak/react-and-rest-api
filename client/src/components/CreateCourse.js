@@ -39,7 +39,7 @@ class NewCourse extends Component{
     })
     .catch(err => { 
       if(err.message){
-        this.setState({errorMessages:err.message});
+        this.setState({ errorMessages:err.message });
       }
     })
   }
@@ -67,7 +67,8 @@ class NewCourse extends Component{
       errorMessages
     } = this.state;
 
-  const { errDisplay,cancel } = this.props.context.actions
+  const { errDisplay,cancel } = this.props.context.actions;
+  
       return(
         <div className="bounds course--detail">
           <h1>Create Course</h1>

@@ -1,5 +1,6 @@
 import React,{ PureComponent,Fragment } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
 
 class CourseDetail extends PureComponent {
     state = {
@@ -9,52 +10,74 @@ class CourseDetail extends PureComponent {
         materialsNeeded: "",
         estimatedTime: "",
         user: {},
-        boolean: null
+        boolean: null,
+        redirect: false,
+        redirectMessages: null,
     }
 
     componentDidMount = async () => {
         const { match: { params } } = this.props;
         const { context } = this.props;
-        await context.data.getCourses(`/courses/${params.id}`)
-        .then(async res  => {
-            const {
-                id,
-                title,
-                description,
-                User,
-                materialsNeeded,
-                estimatedTime
-            } = res;    
-            await this.setState({
+        try{
+           const res =  await context.data.getCourses(`/courses/${params.id}`)
+           const {
+            id,
+            title,
+            description,
+            User,
+            materialsNeeded,
+            estimatedTime
+            } = res; 
+            this.setState({
                 id,
                 title,
                 description,
                 materialsNeeded,
                 estimatedTime,
                 user: User,
-                boolean: this.props.context.authenticatedUser === null || this.props.context.authenticatedUser.id !== User.id
+                boolean: this.props.context.authenticatedUser === null 
+                        || this.props.context.authenticatedUser.id !== User.id
             });
-
-        });
+        }catch(err){
+            if(!err.title)err.title = "Not Found"         
+            this.setState({
+                redirect:true,
+                redirectMessages: err
+            });
+            console.error(err);
+        }
+        
     }
+
     delete = async (path) => {
-        const { context } = this.props;
+        const { context, history } = this.props;
         const { emailAddress,password } = context.authenticatedUser;
         const decryptedPass = context.cryptr.decrypt(password);
-        await context.data.deleteCourses(path,emailAddress, decryptedPass)
-        .then(res => this.props.history.puch('/'));
+        await context.data.deleteCourses( path, emailAddress, decryptedPass );
+        history.push('/');
     }
 
     render(){
+        
         const {
             id,
             title,
             description,
             user,
-            // eslint-disable-next-line
             materialsNeeded,
             estimatedTime,
+            redirect,
+            redirectMessages
         } = this.state;
+
+        if(redirect){
+            return(
+                <Redirect to={{
+                    pathname: '/error',
+                    state: redirectMessages
+                }} />
+            );
+        }
              
         return(
             <div>
@@ -65,7 +88,7 @@ class CourseDetail extends PureComponent {
                     <span>
                     <Link 
                     className="button" 
-                    to={`/courses/${id}/update`} >
+                    to={`/courses/${this.props.match.params.id}/update`} >
                     Update Course
                     </Link>
                     <Link 
@@ -94,7 +117,7 @@ class CourseDetail extends PureComponent {
                 <p>By {`${user.firstName} ${user.lastName}`}</p>
                 </div>
                 <div className="course--description">
-                <p>{ description }</p>
+                    <ReactMarkdown source={description}/>
                 </div>
             </div>
             <div className="grid-25 grid-right">
@@ -114,19 +137,8 @@ class CourseDetail extends PureComponent {
                     {
                         (materialsNeeded)?
                         <Fragment>
-                        <h4>Materials Needed</h4>
-                        <ul>
-                            <li>1/2 x 3/4 inch parting strip</li>
-                            <li>1 x 2 common pine</li>
-                            <li>1 x 4 common pine</li>
-                            <li>1 x 10 common pine</li>
-                            <li>1/4 inch thick lauan plywood</li>
-                            <li>Finishing Nails</li>
-                            <li>Sandpaper</li>
-                            <li>Wood Glue</li>
-                            <li>Wood Filler</li>
-                            <li>Minwax Oil Based Polyurethane</li>
-                        </ul>
+                            <h4>Materials Needed</h4>
+                            <ReactMarkdown source={materialsNeeded}/>
                         </Fragment>
                         :false
                     }

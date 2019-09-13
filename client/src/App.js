@@ -14,6 +14,7 @@ import CourseDetail from './components/CourseDetail';
 import UserSignUp from './components/UserSignUp';
 import UserSignIn from './components/UserSignIn';
 import UserSignOut from './components/UserSignOut';
+import ErrorHandler from './components/ErrorHandler';
 import withContext from './Context';
 
 const HeaderWithContext = withContext(Header);
@@ -24,6 +25,7 @@ const UsersCourseWithContext = withContext(CourseDetail);
 const SignUpWithContext = withContext(UserSignUp);
 const SignInWithContext = withContext(UserSignIn);
 const SignOutWithContext = withContext(UserSignOut);
+const ErrorHandlerWithContext = withContext(ErrorHandler);
 
 const PrivateRoute = withContext(({context,component: Component, ...rest }) => {
   return (
@@ -50,12 +52,13 @@ function App() {
       <HeaderWithContext />
       <Switch>
       <Route exact path="/" component={CoursesWithContext} />
-      <PrivateRoute path="/courses/create" component={NewCourseWithContext} />
-      <PrivateRoute path="/courses/:id/update" component={UpdateCourseWithContext} />
-      <Route path="/courses/:id" component={UsersCourseWithContext} />
+      <PrivateRoute exact path="/courses/create" component={NewCourseWithContext} />
+      <PrivateRoute exact path="/courses/:id/update" component={UpdateCourseWithContext} />
+      <Route exact path="/courses/:id" component={UsersCourseWithContext} />
       <Route path="/signup" component={SignUpWithContext} />
       <Route path="/signin" component={SignInWithContext} />
       <Route path="/signOut" component={SignOutWithContext} />
+      <Route component={ErrorHandlerWithContext} />
       </Switch>
     </React.Fragment>
   </Router>

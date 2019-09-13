@@ -13,9 +13,9 @@ class SignUp extends Component{
 
     }
 
-    submit = (e) => {
+    submit = async (e) => {
         e.preventDefault();
-        const { context } = this.props;
+        const { data, actions } = this.props.context;
 
         const {
             firstName,
@@ -32,26 +32,21 @@ class SignUp extends Component{
             password,
             confirmPassword,
         };
-    
-        context.data.createUser(user)
-        .then(res => {
-            context.actions.signIn(emailAddress, password)
-                .then(() => this.props.history.push('/'));
-        }).catch(err => {
-            if(err.message){
-            this.setState({errorMessages:err.message});
-            }
-        }); 
+
+        try{
+            await data.createUser(user);
+            await actions.signIn(emailAddress, password);
+            this.props.history.push('/');
+        }catch(err){
+            if(err.message) this.setState({errorMessages:err.message});
+            console.error(err);
+        }
     }
 
     change = (event) => {
         const name = event.target.name;
         const value = event.target.value;
-        this.setState(() => {
-            return {
-            [name]: value
-            };
-        });
+        this.setState({[name]: value});
     }
 
     render(){
@@ -69,7 +64,7 @@ class SignUp extends Component{
             errorMessages
         } = this.state;
 
-        const { errDisplay,cancel } = this.props.context.actions
+        const { errDisplay, cancel } = this.props.context.actions
 
 
         return(

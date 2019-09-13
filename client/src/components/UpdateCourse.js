@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Redirect } from 'react-router-dom';
 
 class UpdateCourse extends Component{
 
@@ -10,6 +11,8 @@ class UpdateCourse extends Component{
         materialsNeeded:'',
         user : '',
         errorMessages: null,
+        redirect: false,
+        redirectMessages: null,
     }
 
     chnage = (e)  => {
@@ -18,42 +21,59 @@ class UpdateCourse extends Component{
         this.setState({[name]:value})
     }
 
-    cancel = (e) => {
-        e.preventDefault(); 
-        this.props.history.push('/');
-    }
+    componentDidMount = async () => {
 
-    async componentDidMount(){
-        const { context } = this.props;
-        const { id } = this.props.match.params;
-        await context.data.getCourses(`/courses/${id}`)
-            .then(res => {
-                const {
-                    id,
-                    description,
-                    estimatedTime,
-                    materialsNeeded,
-                    title,
-                    User,
-                } = res;
-                if(res !== null){
-                    this.setState({
+        const { data, authenticatedUser } = this.props.context;
+        const { params } = this.props.match;
+        
+        try{
+            const course = await data.getCourses(`/courses/${params.id}`)
+            
+            const {
+                id,
+                description,
+                estimatedTime,
+                materialsNeeded,
+                title,
+                User,
+            } = course;
+
+            if(course !== null){
+                await this.setState({
                         id,
                         title,
                         description,
                         estimatedTime,
                         materialsNeeded,
                         user : User,
-                    })
+                });
+
+                if(authenticatedUser.id !== this.state.user.id){
+                    
+                     let err = {
+                        title:'Forbidden',
+                        message:`Oh oh! You can't access this page. 
+                        The course you're trying to update belongs to the user "${this.state.user.firstName}"`
+                    }
+
+                    throw err;
                 }
-            }).catch(err => {
-                console.log(err)
-            })
+            }
+
+        }catch(err){
+            if(!err.title)err.title = "Not Found"         
+            this.setState({
+                redirect:true,
+                redirectMessages: err
+            });
+            console.error(err);
+        }
     }
 
-    submit = (e) => {
+    submit = async (e) => {
         e.preventDefault();
-        const { context } = this.props;
+        const { context, history } = this.props;
+
         const {
             description,
             estimatedTime,
@@ -70,22 +90,21 @@ class UpdateCourse extends Component{
             User,
         };
 
-        const { emailAddress,password } = context.authenticatedUser;
+        const { emailAddress, password } = context.authenticatedUser;
         const decryptedString = context.cryptr.decrypt(password);
 
-        context.data.updateCourse(`/courses/${this.state.id}`, body, emailAddress, decryptedString)
-        .then(res => {
-            if(res.message){
-                throw res
-            }
-        }).catch(err => {
-            if(err.message){
-                this.setState({errorMessages: err.message})
-            }
-        })
+        try{
+            const res = await context.data.updateCourse(`/courses/${this.state.id}`, body, emailAddress, decryptedString);
+            if(res.message) throw res;
+            else history.push('/')
+        }catch(err){
+            if(err.message) this.setState({errorMessages: err.message}) 
+        }
     }
 
     render(){
+        
+        const { errDisplay, cancel } = this.props.context.actions;        
 
         const style = {
             cursor: "pointer"
@@ -97,10 +116,18 @@ class UpdateCourse extends Component{
             materialsNeeded,
             estimatedTime,
             user,
-            errorMessages
+            errorMessages,
+            redirect
         }= this.state;
 
-        const { errDisplay,cancel } = this.props.context.actions
+        if(redirect){
+            return(
+                <Redirect to={{
+                    pathname: '/error',
+                    state: this.state.redirectMessages
+                }} />
+            );
+        }
 
         return(
             <div className="bounds course--detail">

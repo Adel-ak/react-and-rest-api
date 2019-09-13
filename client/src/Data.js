@@ -27,14 +27,14 @@ export default class Data {
     const res = await response.json();
     if (response.status === 200) {
       return res;
-    }
-    else if (response.status === 401) {
+    }else if (response.status === 401) {
       return {
         isNull: true,
-        errors: [ 'Sign-in was unsuccessful' ]
+        errors: [res.errors[1]]
       };
-    }
-    else {
+    }else if (response.status === 500) {
+      throw res
+    }else {
       if(res.hasOwnProperty('message'))throw res;
       else throw new Error();
     }
@@ -48,6 +48,8 @@ export default class Data {
     else if (response.status === 400) {
       const res = await response.json()
       throw res;
+    }else if (response.status === 500) {
+      throw response.json()
     }
     else {
       throw new Error()
