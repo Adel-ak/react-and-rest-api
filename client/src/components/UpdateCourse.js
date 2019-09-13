@@ -95,7 +95,6 @@ class UpdateCourse extends Component{
 
         try{
             const res = await context.data.updateCourse(`/courses/${this.state.id}`, body, emailAddress, decryptedString);
-            console.log(`Output => : submit -> res`, res);
             if(res.message) throw res;
             else history.push('/')
         }catch(err){
@@ -213,7 +212,8 @@ class UpdateCourse extends Component{
                             <button 
                             style={style}
                             className="button" 
-                            type="submit">
+                            type="submit"
+                            onClick="">
                             Update Course
                             </button>
                             <button 

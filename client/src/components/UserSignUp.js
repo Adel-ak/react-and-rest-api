@@ -13,8 +13,26 @@ class SignUp extends Component{
 
     }
 
-    submit = async (e) => {
+    beforeSubmit = (e) => {
         e.preventDefault();
+        const { password, confirmPassword } = this.state;
+        if(password !== confirmPassword){
+            this.setState(()=>{
+                let inValidMessages = {
+                    errorMessages:['Make Sure Both Password Matchs']
+                }
+                return inValidMessages
+            })
+        }else {
+            this.submit()
+        }
+    }
+
+    onSubmit = () => {
+
+    }
+
+    submit = async () => {
         const { data, actions } = this.props.context;
 
         const {
@@ -39,7 +57,7 @@ class SignUp extends Component{
             this.props.history.push('/');
         }catch(err){
             if(err.message) this.setState({errorMessages:err.message});
-            console.error(err);
+            console.log(err);
         }
     }
 
@@ -77,7 +95,7 @@ class SignUp extends Component{
                     :false
                 }
                 <div>
-                    <form onSubmit={this.submit}>
+                    <form onSubmit={this.beforeSubmit}>
                         <div>
                             <input 
                             id="firstName" 
@@ -137,7 +155,8 @@ class SignUp extends Component{
                             <button 
                             style={style} 
                             className="button" 
-                            type="submit">
+                            type="submit"
+                            onClcik={e => this.beforeSubmit(e)}>
                             Sign Up
                             </button>
                             <button 

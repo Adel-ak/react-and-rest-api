@@ -21,7 +21,7 @@ class SignIn extends Component{
     const { from } = this.props.location.state || { from: { pathname: '/' } };
     const { emailAddress, password } = this.state;
     try{
-      const res = await actions.signIn(emailAddress || 'ak@ak.com', password||'12')
+      const res = await actions.signIn(emailAddress, password)
 
       if(res.isNull) throw res ;
       else this.props.history.push(from);
@@ -64,7 +64,7 @@ class SignIn extends Component{
                             type="text" 
                             className="" 
                             placeholder="Email Address" 
-                            value={emailAddress||'ak@ak.com'}
+                            value={emailAddress}
                             onChange={this.change} 
                             />
                         </div>
@@ -75,7 +75,7 @@ class SignIn extends Component{
                             type="password" 
                             className="" 
                             placeholder="Password" 
-                            value={password||"12"}
+                            value={password}
                             onChange={this.change}
                             autoComplete="off"
                             />

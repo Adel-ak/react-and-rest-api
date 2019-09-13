@@ -44,11 +44,13 @@ export class Provider extends Component {
     const user = await this.data.getUser(emailAddress, password);
 
     const encryptedPassword = this.cryptr.encrypt(password);
+
     if (!user.isNull) {
       this.setState({ authenticatedUser: user });
       this.state.authenticatedUser.password = encryptedPassword;
       Cookies.set('authenticatedUser', JSON.stringify(user), {expires: 1});
     }
+    
     return user;
   }
 
