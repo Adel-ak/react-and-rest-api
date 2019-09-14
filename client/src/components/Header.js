@@ -1,12 +1,11 @@
 import React,{ Fragment } from 'react';
 import { Link } from 'react-router-dom';
 
-export default function Header({ context:{authenticatedUser} }){
+export default function Header({ context:{ authenticatedUser } }){
+  //css style for logo color
   const style = {
     color:'#fff'
   }
-  
-  const authUser = authenticatedUser;
 
   return (
     <Fragment>
@@ -15,9 +14,10 @@ export default function Header({ context:{authenticatedUser} }){
           <h1 className="header--logo"><Link style={style} to="/">Courses</Link></h1>
           <nav>
           {
-            (authUser !== null)?
+            //if your is authenticated then render welcome message and sign out button in header
+            (authenticatedUser !== null)?
             <Fragment>
-              <span>Welcome,{` ${authUser.firstName} ${authUser.lastName}`} </span>
+              <span>Welcome,{` ${authenticatedUser.firstName} ${authenticatedUser.lastName}`} </span>
               <Link className="signout" to="/signout">Sign Out</Link>
             </Fragment>
             :

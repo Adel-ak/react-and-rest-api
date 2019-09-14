@@ -6,32 +6,42 @@ class Courses extends Component{
 
     state = {
         courses: null,
-        redirect: false,
+        isRedirect: false,
         redirectMessages: null,
     }
 
     async componentDidMount(){
-        const { context } = this.props;
-        await context.data.getCourses(`/courses`)
-            .then(res => {
-                if(res.length > 0){
-                    this.setState({courses: res});
-                }
-            }).catch(err => {
+
+        const { data } = this.props.context;
+        
+        try{
+            //fetches all courses
+            const res = await data.getCourses('/courses')
+            if(res.length > 0){
+                this.setState({courses: res});
+            }
+        }catch(err){
+            if(err.status === 500){
                 this.setState({
-                    redirect: true,
+                    isRedirect:true,
+                    redirectPath: '/error',
+                    redirectMessages: err
+                });
+            }else{
+                this.setState({
+                    isRedirect: true,
                     redirectMessages: err,
                 });
-                
-                console.log(err);
-            });
+            }
+        }
     }
 
     render() {
         
-        const { courses, redirect }=this.state;
+        const { courses, isRedirect } = this.state;
 
-        const values = 
+        //if courses is not null lessons will have an array of fetched courses
+        const lessons = 
         (courses !== null)?
         courses.map(val => (
             <div className="grid-33" key={val.id} >
@@ -43,7 +53,8 @@ class Courses extends Component{
         ))
         :false;
 
-        if(redirect){
+        //any error occurred user will be directed to an error page
+        if(isRedirect){
             return <Redirect to={{
                 pathname: '/error',
                 state: this.state.redirectMessages
@@ -52,7 +63,7 @@ class Courses extends Component{
 
         return(
             <div className="bounds">
-                { values }
+                { lessons }
                 <div className="grid-33">
                     <a className="course--module course--add--module" href="/courses/create">
                     <h3 className="course--add--title">

@@ -3,6 +3,7 @@ import { Link, Redirect } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 
 class CourseDetail extends PureComponent {
+
     state = {
         id:"",
         title: "",
@@ -10,8 +11,8 @@ class CourseDetail extends PureComponent {
         materialsNeeded: "",
         estimatedTime: "",
         user: {},
-        boolean: null,
-        redirect: false,
+        boolean: true,
+        isRedirect: false,
         redirectPath: null,
         redirectMessages: null,
     }
@@ -20,7 +21,9 @@ class CourseDetail extends PureComponent {
         const { match: { params } } = this.props;
         const { context } = this.props;
         try{
-           const res =  await context.data.getCourses(`/courses/${params.id}`)
+           //fetches course
+            const res =  await context.data.getCourses(`/courses/${params.id}`)
+           
            const {
             id,
             title,
@@ -29,6 +32,7 @@ class CourseDetail extends PureComponent {
             materialsNeeded,
             estimatedTime
             } = res; 
+
             this.setState({
                 id,
                 title,
@@ -36,39 +40,45 @@ class CourseDetail extends PureComponent {
                 materialsNeeded,
                 estimatedTime,
                 user: User,
+                /*if user is not authenticated or current (logged in) user and course user id
+                the boolean will be used to show or not to show the update and deleted 
+                depending if the user own or if a guest is viweing it 
+                */
                 boolean: this.props.context.authenticatedUser === null 
                         || this.props.context.authenticatedUser.id !== User.id
             });
+
         }catch(err){
+
             if(!err.title){
                 err.title = "Not Found";
                 this.setState({
-                    redirect:true,
+                    isRedirect:true,
                     redirectPath: '/notfound',
                     redirectMessages: err
                 });
             } else if(err.status === 500){
                 this.setState({
-                    redirect:true,
+                    isRedirect:true,
                     redirectPath: '/error',
                     redirectMessages: err
                 });
             }  
-            console.log(err);
         }
         
     }
 
+    //deletes users course (users must own course and be authenticated)
     delete = async (path) => {
         const { context, history } = this.props;
         const { emailAddress,password } = context.authenticatedUser;
-        const decryptedPass = context.cryptr.decrypt(password);
+        const decryptedPass = context.cryptr.decrypt(password);//decrypted paswword
         await context.data.deleteCourses( path, emailAddress, decryptedPass );
-        history.push('/');
+        history.push('/');//goes to home page after deleted
     }
-
+    
     render(){
-        
+
         const {
             id,
             title,
@@ -76,12 +86,14 @@ class CourseDetail extends PureComponent {
             user,
             materialsNeeded,
             estimatedTime,
-            redirect,
+            boolean,
+            isRedirect,
             redirectPath,
             redirectMessages
         } = this.state;
 
-        if(redirect){
+        //any error occurred user will be directed to an error page
+        if(isRedirect){
             return(
                 <Redirect to={{
                     pathname: redirectPath,
@@ -95,7 +107,9 @@ class CourseDetail extends PureComponent {
             <div className="actions--bar">
             <div className="bounds">
                 <div className="grid-100">
-                {(!this.state.boolean)?
+                {
+                    /*show only if current user owns the course*/
+                    (!boolean)?
                     <span>
                         <Link 
                         className="button" 
@@ -110,7 +124,6 @@ class CourseDetail extends PureComponent {
                         </Link>
                     </span>
                     :false
-                
                 }
                 
                 <Link
@@ -137,6 +150,7 @@ class CourseDetail extends PureComponent {
                 <ul className="course--stats--list">
                     <li className="course--stats--list--item">
                     {
+                        /*only show estimatedTime if its not empty*/
                         (estimatedTime)?
                         <Fragment>
                         <h4>Estimated Time</h4>
@@ -147,6 +161,7 @@ class CourseDetail extends PureComponent {
                     </li>
                     <li className="course--stats--list--item">
                     {
+                        /*only show materialsNeeded if its not empty*/
                         (materialsNeeded)?
                         <Fragment>
                             <h4>Materials Needed</h4>

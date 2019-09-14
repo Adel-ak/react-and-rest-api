@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { Redirect } from 'react-router-dom';
 
-class UpdateCourse extends Component{
+class UpdateCourse extends PureComponent{
 
     state = {
         id:'',
@@ -13,6 +13,7 @@ class UpdateCourse extends Component{
         errorMessages: null,
         redirect: false,
         redirectMessages: null,
+        isRender: false
     }
 
     chnage = (e)  => {
@@ -21,13 +22,13 @@ class UpdateCourse extends Component{
         this.setState({[name]:value})
     }
 
-    componentWillMount = async () => {
+    componentDidMount = async () => {
 
         const { data, authenticatedUser } = this.props.context;
         const { params } = this.props.match;
         
         try{
-            const course = await data.getCourses(`/courses/${params.id}`)
+            const course = await data.getCourses(`/courses/${params.id}`);
             
             const {
                 id,
@@ -46,6 +47,7 @@ class UpdateCourse extends Component{
                         estimatedTime,
                         materialsNeeded,
                         user : User,
+                        isRender:true
                 });
 
                 if(authenticatedUser.id !== this.state.user.id){
@@ -61,12 +63,11 @@ class UpdateCourse extends Component{
             }
 
         }catch(err){
-            if(!err.title)err.title = "Not Found"         
+            if(!err.title)err.title = "Not Found";      
             this.setState({
                 redirect:true,
                 redirectMessages: err
             });
-            console.error(err);
         }
     }
 
@@ -75,6 +76,7 @@ class UpdateCourse extends Component{
         const { context, history } = this.props;
 
         const {
+            id,
             description,
             estimatedTime,
             materialsNeeded,
@@ -94,7 +96,7 @@ class UpdateCourse extends Component{
         const decryptedString = context.cryptr.decrypt(password);
 
         try{
-            const res = await context.data.updateCourse(`/courses/${this.state.id}`, body, emailAddress, decryptedString);
+            const res = await context.data.updateCourse(`/courses/${id}`, body, emailAddress, decryptedString);
             if(res.message) throw res;
             else history.push('/')
         }catch(err){
@@ -109,7 +111,7 @@ class UpdateCourse extends Component{
             } 
         }
     }
-
+    
     render(){
         
         const { errDisplay, cancel } = this.props.context.actions;        
@@ -119,13 +121,15 @@ class UpdateCourse extends Component{
         };
 
         const {
+            id,
             title,
             description,
             materialsNeeded,
             estimatedTime,
             user,
             errorMessages,
-            redirect
+            redirect,
+            isRender
         }= this.state;
 
         if(redirect){
@@ -135,98 +139,99 @@ class UpdateCourse extends Component{
                     state: this.state.redirectMessages
                 }} />
             );
-        }
+        }else if(isRender){
 
-        return(
-            <div className="bounds course--detail">
-                <h1>Update Course</h1>
-                {
-                    (errorMessages)?
-                    errDisplay(errorMessages)
-                    :false
-                }
-                <div>
-                    <form onSubmit={this.submit}>
-                        <div className="grid-66">
-                            <div className="course--header">
-                                <h4 className="course--label">Course</h4>
-                                <div>
-                                    <input 
-                                    id="title" 
-                                    name="title" 
-                                    type="text" 
-                                    className="input-title course--title--input" 
-                                    placeholder="Course title..."
-                                    value={title}
-                                    onChange={this.chnage}
-                                    />
-                                </div>
-                                <p>By {`${user.firstName} ${user.lastName}`}</p>
-                            </div>
-                            <div className="course--description">
-                                <div>
-                                <textarea 
-                                id="description" 
-                                name="description" 
-                                className="" 
-                                placeholder="Course description..."
-                                value={description}
-                                onChange={this.chnage}>
-                                </textarea>
-                            </div>
-                            </div>
-                        </div>
-                        <div className="grid-25 grid-right">
-                            <div className="course--stats">
-                                <ul className="course--stats--list">
-                                <li className="course--stats--list--item">
-                                    <h4>Estimated Time</h4>
+            return(
+                <div className="bounds course--detail">
+                    <h1>Update Course</h1>
+                    {
+                        (errorMessages)?
+                        errDisplay(errorMessages)
+                        :false
+                    }
+                    <div>
+                        <form onSubmit={this.submit}>
+                            <div className="grid-66">
+                                <div className="course--header">
+                                    <h4 className="course--label">Course</h4>
                                     <div>
                                         <input 
-                                        id="estimatedTime" 
-                                        name="estimatedTime" 
+                                        id="title" 
+                                        name="title" 
                                         type="text" 
-                                        className="course--time--input"
-                                        placeholder="Hours" 
-                                        value={estimatedTime}
-                                        onChange={this.chnage}/>
+                                        className="input-title course--title--input" 
+                                        placeholder="Course title..."
+                                        value={title}
+                                        onChange={this.chnage}
+                                        />
                                     </div>
-                                </li>
-                                <li className="course--stats--list--item">
-                                    <h4>Materials Needed</h4>
+                                    <p>By {`${user.firstName} ${user.lastName}`}</p>
+                                </div>
+                                <div className="course--description">
                                     <div>
-                                        <textarea 
-                                        id="materialsNeeded" 
-                                        name="materialsNeeded" 
-                                        className="" 
-                                        placeholder="List materials..."
-                                        value={materialsNeeded}
-                                        onChange={this.chnage}>
-                                        </textarea>
-                                    </div>
-                                </li>
-                                </ul>
+                                    <textarea 
+                                    id="description" 
+                                    name="description" 
+                                    className="" 
+                                    placeholder="Course description..."
+                                    value={description}
+                                    onChange={this.chnage}>
+                                    </textarea>
+                                </div>
+                                </div>
                             </div>
-                        </div>
-                        <div className="grid-100 pad-bottom">
-                            <button 
-                            style={style}
-                            className="button" 
-                            type="submit"
-                            onClick="">
-                            Update Course
-                            </button>
-                            <button 
-                            style={style}
-                            className="button button-secondary" 
-                            onClick={e => cancel(e)}>
-                            Cancel
-                            </button>
-                        </div>
-                    </form>
+                            <div className="grid-25 grid-right">
+                                <div className="course--stats">
+                                    <ul className="course--stats--list">
+                                    <li className="course--stats--list--item">
+                                        <h4>Estimated Time</h4>
+                                        <div>
+                                            <input 
+                                            id="estimatedTime" 
+                                            name="estimatedTime" 
+                                            type="text" 
+                                            className="course--time--input"
+                                            placeholder="Hours" 
+                                            value={estimatedTime}
+                                            onChange={this.chnage}/>
+                                        </div>
+                                    </li>
+                                    <li className="course--stats--list--item">
+                                        <h4>Materials Needed</h4>
+                                        <div>
+                                            <textarea 
+                                            id="materialsNeeded" 
+                                            name="materialsNeeded" 
+                                            className="" 
+                                            placeholder="List materials..."
+                                            value={materialsNeeded}
+                                            onChange={this.chnage}>
+                                            </textarea>
+                                        </div>
+                                    </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div className="grid-100 pad-bottom">
+                                <button 
+                                style={style}
+                                className="button" 
+                                type="submit">
+                                Update Course
+                                </button>
+                                <button 
+                                style={style}
+                                className="button button-secondary" 
+                                onClick={e => cancel(e,`/courses/${id}`)}>
+                                Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-            </div>
-        );
+            );
+        }
+    return null
     }
 }
 

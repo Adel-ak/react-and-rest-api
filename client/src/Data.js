@@ -1,5 +1,4 @@
-import config from './config';
-
+const apiBaseUrl = 'http://localhost:5000/api';
 export default class Data {
   //messag for http status 500
   serverError = {
@@ -7,7 +6,7 @@ export default class Data {
     title:'Error',
     message:'Sorry! We just encountered an unexpected error.'
   }
-
+ 
   /**
    * 
    * @param {string} path value of api endpoint
@@ -18,7 +17,7 @@ export default class Data {
    * @param {object} credentials object of email and pasword value
    */
   api(path, method = 'GET', body = null, requiresAuth = false, credentials = null) {
-    const url = config.apiBaseUrl + path;
+    const url = apiBaseUrl + path;
   
     const options = {
       method,
@@ -49,7 +48,7 @@ export default class Data {
    * @param {string} password pass in users password
    */
   async getUser(email, password) {
-    const response = await this.api(`/users`, 'GET', null, true, { username:email, password });
+    const response = await this.api(`/users`, 'GET', null, true, { username: email, password });
     const res = await response.json();
     if (response.status === 200) {
       return res;
@@ -130,7 +129,7 @@ export default class Data {
    * @param {string} password current users password address
    */
   async createCourses(path, body , email, password) {
-    const response = await this.api(path, 'POST', body, true, { email, password });       
+    const response = await this.api(path, 'POST', body, true, { username: email, password });       
     if (response.status === 201) {
       return [];
     
@@ -157,7 +156,7 @@ export default class Data {
  * @param {string} password current users password address
  */
   async deleteCourses(path, email, password) {
-    const response = await this.api(path, 'DELETE', null, true, { email, password });
+    const response = await this.api(path, 'DELETE', null, true, { username: email, password });
     const checkStatus = response.status === 404 
                      || response.status === 403;     
     if (response.status === 204) {

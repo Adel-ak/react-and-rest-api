@@ -9,6 +9,7 @@ class SignIn extends Component{
       errorMessages: null,
   }
 
+  //changes value of state from input form 
   change = (e) => {
     const name = e.target.name;
     const value = e.target.value;
@@ -17,23 +18,24 @@ class SignIn extends Component{
   
   submit = async (e) => {
     e.preventDefault();
-    const { actions } = this.props.context;
-    const { from } = this.props.location.state || { from: { pathname: '/' } };
+    const { context:{ actions:{ signIn } },location:{ state },history } = this.props;
+    const { from } = state || { from: { pathname: '/' } };
     const { emailAddress, password } = this.state;
-    try{
-      const res = await actions.signIn(emailAddress, password)
 
-      if(res.isNull) throw res ;
-      else this.props.history.push(from);
+    try{
+
+      const res = await signIn(emailAddress, password);
+
+      if(res.isNull) throw res;
+      else history.push(from);
 
     }catch(err){
       if(err.errors) this.setState({errorMessages:err.errors});
-      console.error(err);
     }
   }
 
   render(){
-
+      //css cursor style 
       const style = {
           cursor: "pointer"
       }
@@ -51,6 +53,7 @@ class SignIn extends Component{
             <div className="grid-33 centered signin">
                 <h1>Sign In</h1>
                 {
+                  //diplayes validation messages if available 
                   (errorMessages)?
                   errDisplay(errorMessages)
                   :false
