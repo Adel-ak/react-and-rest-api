@@ -187,7 +187,7 @@ export default class Data {
  * @param {string} password current users password address
  */
   async updateCourse(path, body, email, password){
-    const response = await this.api(path, 'PUT', body, true, { email, password });
+    const response = await this.api(path, 'PUT', body, true, { username: email, password });
     const checkStatus =  response.status === 400 
                 || response.status === 404 
                 || response.status === 403;

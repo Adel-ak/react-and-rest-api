@@ -47,7 +47,7 @@ class UpdateCourse extends PureComponent{
                      let err = {
                         title:'Forbidden',
                         message:`Oh oh! You can't access this page. 
-                        The course you're trying to update belongs to the user "${this.state.user.firstName}"`
+                        The course you're trying to update belongs to the user "${User.firstName}"`
                     }
 
                     throw err;
@@ -83,7 +83,7 @@ class UpdateCourse extends PureComponent{
 
         const { 
             context: { 
-                data: updateCourse, 
+                data, 
                 cryptr: { decrypt },
                 authenticatedUser
             }, 
@@ -113,13 +113,14 @@ class UpdateCourse extends PureComponent{
 
         try{
 
-            const res = await updateCourse(`/courses/${id}`, newCourse, emailAddress, decryptedString);
+            const res = await data.updateCourse(`/courses/${id}`, newCourse, emailAddress, decryptedString);            
             //if res has a message property, it means an error has occurred
             //otherwise it will move to home page
             if(res.message) throw res;
             else history.push('/');
 
         }catch(err){
+        console.log(`Output => : UpdateCourse -> submit -> err`, err);
 
             if(err.status === 500){
                 
@@ -183,7 +184,7 @@ class UpdateCourse extends PureComponent{
                         //diplayes validation messages if available
                         (errorMessages)?
                         errDisplay(errorMessages)
-                        :false
+                        :false 
                     }
                     <div>
                         <form onSubmit={this.submit}>
