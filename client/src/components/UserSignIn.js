@@ -25,16 +25,21 @@ class SignIn extends Component{
     try{
 
       const res = await signIn(emailAddress, password);
-
+      //if res is null, it means an error has occurred
+        //either wrong email or password
+      //otherwise it will move to home page or last page visited before the signed in
       if(res.isNull) throw res;
       else history.push(from);
 
     }catch(err){
+
       if(err.errors) this.setState({errorMessages:err.errors});
+
     }
   }
 
   render(){
+    
       //css cursor style 
       const style = {
           cursor: "pointer"

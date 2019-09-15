@@ -40,17 +40,9 @@ class UpdateCourse extends PureComponent{
             } = course;
 
             if(course !== null){
-                await this.setState({
-                        id,
-                        title,
-                        description,
-                        estimatedTime,
-                        materialsNeeded,
-                        user : User,
-                        isRender:true
-                });
-
-                if(authenticatedUser.id !== this.state.user.id){
+                // if user doesnt not own the course it will throw a err
+                //otherwise it will change state with the fetched data
+                if(authenticatedUser.id !== User.id){
                     
                      let err = {
                         title:'Forbidden',
@@ -59,6 +51,18 @@ class UpdateCourse extends PureComponent{
                     }
 
                     throw err;
+
+                }else{
+
+                    await this.setState({
+                        id,
+                        title,
+                        description,
+                        estimatedTime,
+                        materialsNeeded,
+                        user : User,
+                        isRender:true
+                });
                 }
             }
 
@@ -71,51 +75,71 @@ class UpdateCourse extends PureComponent{
         }
     }
 
+
+    
+    //method which will submit the course with new data which is picked up from state.
     submit = async (e) => {
         e.preventDefault();
-        const { context, history } = this.props;
 
+        const { 
+            context: { 
+                data: updateCourse, 
+                cryptr: { decrypt },
+                authenticatedUser
+            }, 
+            history
+        } = this.props;
+
+        //data in state
         const {
             id,
             description,
             estimatedTime,
             materialsNeeded,
             title,
-            User,
         } = this.state;
 
-        const body = {
+
+        //new course data
+        const newCourse = {
             description,
             estimatedTime,
             materialsNeeded,
             title,
-            User,
         };
 
-        const { emailAddress, password } = context.authenticatedUser;
-        const decryptedString = context.cryptr.decrypt(password);
+        const { emailAddress, password } = authenticatedUser;
+        const decryptedString = decrypt(password);//decrypte password
 
         try{
-            const res = await context.data.updateCourse(`/courses/${id}`, body, emailAddress, decryptedString);
+
+            const res = await updateCourse(`/courses/${id}`, newCourse, emailAddress, decryptedString);
+            //if res has a message property, it means an error has occurred
+            //otherwise it will move to home page
             if(res.message) throw res;
-            else history.push('/')
+            else history.push('/');
+
         }catch(err){
+
             if(err.status === 500){
+                
                 this.setState({
                     redirect:true,
                     redirectPath: '/error',
                     redirectMessages: err
                 });
+
             }else{
-                this.setState({errorMessages: err.message})
+
+                this.setState({ errorMessages: err.message });
+
             } 
         }
     }
-    
+
     render(){
         
-        const { errDisplay, cancel } = this.props.context.actions;        
-
+        //
         const style = {
             cursor: "pointer"
         };
@@ -131,6 +155,8 @@ class UpdateCourse extends PureComponent{
             redirect,
             isRender
         }= this.state;
+        
+        const { errDisplay, cancel } = this.props.context.actions;        
 
         if(redirect){
             return(
@@ -139,12 +165,22 @@ class UpdateCourse extends PureComponent{
                     state: this.state.redirectMessages
                 }} />
             );
+            /*
+            when a user is send to the forbidden page just right before 
+            getting there, they were getting a glance of the update course
+            returned JSX, after a few test i made i found out the when a user 
+            was heading to the forbidden page, this componet renders 3 times,
+            not sure if thats the mean cause. My solution to aviod that visual 
+            disturbances I've set a isRender propety in state,if its true only 
+            then it will show the update course returned JSX.
+            */
         }else if(isRender){
 
             return(
                 <div className="bounds course--detail">
                     <h1>Update Course</h1>
                     {
+                        //diplayes validation messages if available
                         (errorMessages)?
                         errDisplay(errorMessages)
                         :false
