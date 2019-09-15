@@ -1,7 +1,7 @@
 import React,{ Fragment } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 
-export default function Header({ context:{ authenticatedUser } }){
+function Header({ context:{ authenticatedUser }, location:{ pathname }}){
   //css style for logo color
   const style = {
     color:'#fff'
@@ -23,7 +23,12 @@ export default function Header({ context:{ authenticatedUser } }){
             :
             <Fragment>
               <Link className="signup" to="/signup">Sign Up</Link>
-              <Link className="signin" to="/signin">Sign In</Link>
+              <Link 
+              className="signin" 
+              to={{ pathname:"/signin" , 
+                    state:{
+                      from :pathname
+                      }}}>Sign In</Link>
             </Fragment>
           }
           </nav>
@@ -32,3 +37,5 @@ export default function Header({ context:{ authenticatedUser } }){
     </Fragment>
   );
 }
+
+export default withRouter(Header)

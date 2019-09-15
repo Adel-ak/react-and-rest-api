@@ -156,7 +156,7 @@ class SignUp extends Component{
                             style={style} 
                             className="button" 
                             type="submit"
-                            onClcik={e => this.beforeSubmit(e)}>
+                            onClick={e => this.beforeSubmit(e)}>
                             Sign Up
                             </button>
                             <button 
