@@ -10,9 +10,11 @@ NOTE:- Users can only update and delete their own courses.
 
 * ## Back End
 
-1 - Node.js (Express)
+1 - Node.js
 
-2 - Sequelize ORM
+2 - Express
+
+3 - Sequelize ORM
 
 * ## Front End
 
