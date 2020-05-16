@@ -17,6 +17,7 @@ class Courses extends Component{
         try{
             //fetches all courses
             const res = await data.getCourses('/courses')
+            console.log("Courses -> componentDidMount -> res", res)
             if(res.length > 0){
                 this.setState({courses: res});
             }

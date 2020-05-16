@@ -1,4 +1,3 @@
-const apiBaseUrl = 'http://localhost:5000/api';
 export default class Data {
   //messag for http status 500
   serverError = {
@@ -17,7 +16,7 @@ export default class Data {
    * @param {object} credentials object of email and pasword value
    */
   api(path, method = 'GET', body = null, requiresAuth = false, credentials = null) {
-    const url = apiBaseUrl + path;
+
   
     const options = {
       method,
@@ -34,7 +33,7 @@ export default class Data {
       const encodedCredentials = btoa(`${credentials.username}:${credentials.password}`);
       options.headers['Authorization'] = `Basic ${encodedCredentials}`;
     }
-    return fetch(url, options);
+    return fetch('/api' + url, options);
   }
 
   /**
